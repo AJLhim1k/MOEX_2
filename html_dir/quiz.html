@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    #quiz-container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      animation: fadeIn 0.5s ease;
+    }
+
+    img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    .button-container {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      min-width: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #long-btn {
+      background-color: #4CAF50;
+    }
+
+    #short-btn {
+      background-color: #F44336;
+    }
+
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    #long-btn::before {
+      content: "↑";
+      position: absolute;
+      left: 15px;
+      font-size: 20px;
+      animation: rise 1.5s infinite ease-in-out;
+    }
+
+    @keyframes rise {
+      0%, 100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      50% {
+        transform: translateY(-10px);
+        opacity: 0.7;
+      }
+    }
+
+    /* Анимация для кнопки Short (📉) */
+    #short-btn::before {
+      content: "↓";
+      position: absolute;
+      left: 15px;
+      font-size: 20px;
+      animation: fall 1.5s infinite ease-in-out;
+    }
+
+    @keyframes fall {
+      0%, 100% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      50% {
+        transform: translateY(10px);
+        opacity: 0.7;
+      }
+    }
+
+    .button-text {
+      margin-left: 20px;
+    }
+
+    .fade-out {
+      animation: fadeOut 0.5s ease forwards;
+    }
+
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        transform: scale(0.97);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(1.03);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+
+  </style>
+</head>
+<body>
+  <div id="quiz-container">
+    <h2>Выбери направление графика</h2>
+    <img id="graph-img" src="" alt="График">
+    <form id="quiz-form">
+      <input type="hidden" name="answer" id="answer">
+      <div class="button-container">
+        <button type="submit" id="long-btn" onclick="setAnswer('long')">
+          <span class="button-text">Long shares</span>
+        </button>
+        <button type="submit" id="short-btn" onclick="setAnswer('short')">
+          <span class="button-text">Short shares</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    let correctAnswer = null;
+    let currentFilename = null;
+
+    function setAnswer(value) {
+      document.getElementById("answer").value = value;
+    }
+
+    document.getElementById("quiz-form").addEventListener("submit", function(event) {
+      event.preventDefault();
+      const userAnswer = document.getElementById("answer").value;
+      const container = document.getElementById("quiz-container");
+
+      container.classList.add("fade-out");
+
+      setTimeout(() => {
+        const resultPage = (
+          (correctAnswer === true && userAnswer === "long") ||
+          (correctAnswer === false && userAnswer === "short")
+        ) ? "correct.html" : "wrong.html";
+
+        window.location.href = `${resultPage}?file=${encodeURIComponent(currentFilename)}`;
+      }, 500);
+    });
+
+    fetch("../questions/list.json")
+      .then(response => response.json())
+      .then(items => {
+        if (!items.length) throw new Error("Список файлов пуст");
+
+        const randomItem = items[Math.floor(Math.random() * items.length)];
+        document.getElementById("graph-img").src = `../questions/${randomItem.file}`;
+        correctAnswer = randomItem.up;
+        currentFilename = randomItem.file;
+      })
+      .catch(error => {
+        console.error("Ошибка загрузки графика:", error);
+        document.getElementById("graph-img").alt = "Ошибка загрузки изображения.";
+      });
+  </script>
+</body>
+</html>

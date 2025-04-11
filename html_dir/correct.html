@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Правильно!</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #e6f9f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    #result-container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+      animation: fadeIn 0.5s ease;
+    }
+
+    img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin: 20px 0;
+    }
+
+    h1 {
+      font-size: 24px;
+      color: #2d7a4b;
+    }
+
+    p {
+      font-size: 16px;
+      color: #333;
+    }
+
+    .back-btn {
+      margin-top: 20px;
+      padding: 12px 24px 12px 40px;
+      font-size: 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 150px;
+    }
+
+    .back-btn:hover {
+      background-color: #3e8e41;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .back-btn:active {
+      transform: translateY(1px);
+    }
+
+    .back-btn::before {
+      content: "↓";
+      position: absolute;
+      left: 15px;
+      font-size: 20px;
+      transform: rotate(180deg);
+      animation: moveUpDown 1.5s infinite ease-in-out;
+    }
+
+    @keyframes moveUpDown {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(3px);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: scale(1.03);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="result-container">
+    <h1>Отлично! Вы угадали 📈</h1>
+    <p>Вот как двигалась цена:</p>
+    <img id="answer-graph" src="" alt="Ответ" />
+    <button class="back-btn">В меню</button>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const filename = params.get('file');
+    if (filename) {
+      document.getElementById("answer-graph").src = `../answers/${filename}`;
+    } else {
+      document.getElementById("answer-graph").alt = "Файл не указан.";
+    }
+
+    document.querySelector('.back-btn').addEventListener('click', function() {
+      location.href = 'bot_app.html';
+    });
+  </script>
+</body>
+</html>
