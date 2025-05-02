@@ -116,7 +116,7 @@
       position: absolute;
       left: 15px;
       font-size: 20px;
-      animation: fall 1.5s infinite ease-in-out;
+      animation: fall .5s infinite ease-in-out;
     }
 
     .fade-out {
@@ -221,7 +221,7 @@
       setTimeout(() => {
         const resultPage = isCorrect ? "correct_spoofing.html" : "wrong_spoofing.html";
         window.location.href = `${resultPage}?file=${encodeURIComponent(currentFilename)}`;
-      }, 500);
+      }, 100);
     });
 
     // Функция для загрузки данных из JSON

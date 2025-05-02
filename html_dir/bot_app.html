@@ -438,7 +438,7 @@ if (data.limit_reached && data.limit_reached > 0) {
           <div class="place ${classes[i]}">
             <div class="medal">${idx + 1}</div>
             <div class="player-info">
-              <div class="player-name" title="@${p.username}">${isUser ? "⭐" + p.username : "@" + p.username}</div>
+              <div class="player-name" title="${p.username}">${isUser ? "⭐" + p.username : "" + p.username}</div>
               <div class="player-score">${p.score}$</div>
             </div>
           </div>`;

@@ -142,7 +142,7 @@
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
       text-align: center;
       opacity: 0;
-      animation: contentFadeIn 0.5s ease-out 2s forwards;
+      animation: contentFadeIn 0.5s ease-out .1s forwards;
     }
 
     @keyframes contentFadeIn {
@@ -261,15 +261,7 @@
   </style>
 </head>
 <body>
-  <div class="page-fill"></div>
   <div class="page-unfill" style="display: none;"></div>
-  <div class="crossmark-container">
-    <svg class="crossmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-      <circle class="crossmark-circle" cx="26" cy="26" r="24" fill="none"/>
-      <line class="crossmark-cross" x1="16" y1="16" x2="36" y2="36" />
-      <line class="crossmark-cross" x1="36" y1="16" x2="16" y2="36" />
-    </svg>
-  </div>
 
   <div class="main-container">
     <h1>Неправильный ответ 😞</h1>
@@ -286,7 +278,7 @@
     </div>
 
     <div class="buttons-container">
-      <button id="next-btn" class="action-btn next-btn" onclick="navigateTo('quiz_washtrading.html')">
+      <button id="next-btn" class="action-btn next-btn" onclick="navigateTo('quiz_spoofing.html')">
         Следующий вопрос
       </button>
       <button id="menu-btn" class="action-btn menu-btn" onclick="navigateTo('../../education.html')">

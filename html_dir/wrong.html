@@ -27,7 +27,7 @@
   background-color: #f44336;
   z-index: 1000;
   clip-path: circle(200% at 50% 50%);
-  animation: fillScreen 1.4s cubic-bezier(0.36, 0, 0.24, 1) forwards;
+  animation: fillScreen 0.4s cubic-bezier(0.36, 0, 0.24, 1) forwards;
 }
 
 .crossmark-container::before {
@@ -132,7 +132,7 @@
       max-width: 480px;
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
       text-align: center;
-      animation: fadeIn 0.5s ease;
+      animation: fadeIn 0.1s ease;
       display: none;
     }
 
@@ -277,15 +277,6 @@
   </style>
 </head>
 <body>
-<div class="page-fill"></div>
-
-<div class="crossmark-container">
-  <svg class="crossmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-    <circle class="crossmark-circle" cx="26" cy="26" r="24" fill="none"/>
-    <line class="crossmark-cross" x1="16" y1="16" x2="36" y2="36" />
-    <line class="crossmark-cross" x1="36" y1="16" x2="16" y2="36" />
-  </svg>
-</div>
 
   <div class="main-container">
     <h1>Неверный ответ 😕</h1>
@@ -444,7 +435,7 @@ setTimeout(() => {
 
   // Загружаем данные
   updateData();
-}, 2500);
+}, 500);
 
 
     document.addEventListener("DOMContentLoaded", updateData);

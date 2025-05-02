@@ -150,7 +150,7 @@
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
       text-align: center;
       opacity: 0;
-      animation: contentFadeIn 0.5s ease-out 2s forwards;
+      animation: contentFadeIn 0.5s ease-out .1s forwards;
     }
 
     @keyframes contentFadeIn {
@@ -305,14 +305,7 @@
 </head>
 <body>
   <!-- Анимационные элементы -->
-  <div class="page-fill"></div>
   <div class="page-unfill" style="display: none;"></div>
-  <div class="checkmark-container">
-    <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
-      <circle class="checkmark-circle" cx="26" cy="26" r="24" fill="none"/>
-      <path class="checkmark-check" fill="none" d="M16 28l6 6 14-14"/>
-    </svg>
-  </div>
 
   <!-- Основной контент -->
   <div class="main-container">
@@ -330,7 +323,7 @@
     </div>
 
     <div class="buttons-container">
-      <button id="next-btn" class="action-btn next-btn" onclick="navigateTo('quiz_corner.html')">
+      <button id="next-btn" class="action-btn next-btn" onclick="navigateTo('quiz_spoofing.html')">
         Следующий вопрос
       </button>
       <button id="menu-btn" class="action-btn menu-btn" onclick="navigateTo('../../education.html')">
