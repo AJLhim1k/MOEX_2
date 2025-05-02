@@ -13,14 +13,15 @@
       align-items: center;
       height: 100vh;
       margin: 0;
+      overflow: hidden;
     }
 
     #quiz-container {
       background: white;
-      padding: 20px;
+      padding: 25px;
       border-radius: 10px;
       box-shadow: 0 0 12px rgba(0,0,0,0.1);
-      max-width: 400px;
+      max-width: 450px;
       width: 100%;
       text-align: center;
       animation: fadeIn 0.5s ease;
@@ -31,6 +32,24 @@
       border-radius: 8px;
       margin-bottom: 20px;
     }
+
+    .facts-container {
+      margin: 20px 0;
+      text-align: left;
+    }
+
+    .fact-item {
+      background: #f8f9ff;
+      margin-bottom: 10px;
+      padding: 12px 15px;
+      border-radius: 8px;
+      border-left: 3px solid #5d78ff;
+      font-size: 14px;
+    }
+
+    .fact-item:nth-child(1) { border-left-color: #4CAF50; }
+    .fact-item:nth-child(2) { border-left-color: #FF9800; }
+    .fact-item:nth-child(3) { border-left-color: #F44336; }
 
     .button-container {
       display: flex;
@@ -91,7 +110,6 @@
       }
     }
 
-    /* Анимация для кнопки Short (📉) */
     #short-btn::before {
       content: "↓";
       position: absolute;
@@ -99,6 +117,17 @@
       font-size: 20px;
       animation: fall 1.5s infinite ease-in-out;
     }
+
+    .fade-out {
+  animation: fadeOut 0.5s ease forwards;
+}
+
+@keyframes fadeOut {
+  to {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+}
 
     @keyframes fall {
       0%, 100% {
@@ -136,14 +165,19 @@
         transform: scale(1);
       }
     }
-
-
   </style>
 </head>
 <body>
   <div id="quiz-container">
     <h2>Выбери направление графика</h2>
     <img id="graph-img" src="" alt="График">
+
+    <div class="facts-container">
+      <div class="fact-item" id="fact1">Буль-буль</div>
+      <div class="fact-item" id="fact2">Ляляля</div>
+      <div class="fact-item" id="fact3">Помогатор</div>
+    </div>
+
     <form id="quiz-form">
       <input type="hidden" name="answer" id="answer">
       <div class="button-container">
@@ -165,37 +199,76 @@
       document.getElementById("answer").value = value;
     }
 
-    document.getElementById("quiz-form").addEventListener("submit", function(event) {
+    document.getElementById("quiz-form").addEventListener("submit", async function(event) {
       event.preventDefault();
       const userAnswer = document.getElementById("answer").value;
       const container = document.getElementById("quiz-container");
 
+  container.classList.add("fade-out");
+
+      const isCorrect = (
+        (correctAnswer === true && userAnswer === "long") ||
+        (correctAnswer === false && userAnswer === "short")
+      );
+
+      const delta = isCorrect ? 5 : -5;
+
+      try {
+        await fetch("/api/submit_answer", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            correct: isCorrect
+          })
+        });
+      } catch (e) {
+        console.error("Ошибка при отправке результата:", e);
+      }
+
       container.classList.add("fade-out");
-
       setTimeout(() => {
-        const resultPage = (
-          (correctAnswer === true && userAnswer === "long") ||
-          (correctAnswer === false && userAnswer === "short")
-        ) ? "correct.html" : "wrong.html";
-
+        const resultPage = isCorrect ? "correct.html" : "wrong.html";
         window.location.href = `${resultPage}?file=${encodeURIComponent(currentFilename)}`;
       }, 500);
     });
 
-    fetch("../questions/list.json")
+    fetch("/questions/list.json")
       .then(response => response.json())
       .then(items => {
         if (!items.length) throw new Error("Список файлов пуст");
 
         const randomItem = items[Math.floor(Math.random() * items.length)];
-        document.getElementById("graph-img").src = `../questions/${randomItem.file}`;
+        document.getElementById("graph-img").src = `/questions/${randomItem.file}`;
         correctAnswer = randomItem.up;
         currentFilename = randomItem.file;
+
+        // Устанавливаем факты
+        document.getElementById("fact1").textContent = randomItem.fact_1;
+        document.getElementById("fact2").textContent = randomItem.fact_2;
+        document.getElementById("fact3").textContent = randomItem.fact_3;
       })
       .catch(error => {
         console.error("Ошибка загрузки графика:", error);
         document.getElementById("graph-img").alt = "Ошибка загрузки изображения.";
       });
+
+
+
+async function useAttempt() {
+  const response = await fetch('/api/use_attempt', { method: 'POST' });
+  const data = await response.json();
+
+  if (data.error) {
+    alert("Лимит попыток исчерпан!");
+    // Например, перенаправить на главную или показать заглушку
+    window.location.href = "/";
+  } else {
+    console.log("Осталось попыток:", data.remaining_attempts);
+    // Можно отобразить пользователю
+  }
+}
+
+document.addEventListener("DOMContentLoaded", useAttempt);
   </script>
 </body>
 </html>

@@ -11,114 +11,308 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
+      padding: 10px;
+      box-sizing: border-box;
     }
 
-    #result-container {
+    .main-container {
       background: white;
       padding: 20px;
       border-radius: 10px;
-      max-width: 400px;
       width: 100%;
+      max-width: 480px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
       text-align: center;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
       animation: fadeIn 0.5s ease;
     }
 
-    img {
-      max-width: 100%;
-      border-radius: 10px;
-      margin: 20px 0;
-    }
-
     h1 {
-      font-size: 24px;
+      font-size: 22px;
       color: #a80000;
+      margin-top: 0;
+      margin-bottom: 16px;
     }
 
-    p {
-      font-size: 16px;
+    h2 {
+      font-size: 18px;
       color: #333;
+      margin: 20px 0 12px;
     }
 
-    .back-btn {
-      margin-top: 20px;
-      padding: 12px 24px 12px 40px;
+    #plot-image {
+      max-width: 100%;
+      height: auto;
+      border-radius: 6px;
+      margin: 5px 0;
+      border: 1px solid #eee;
+    }
+
+    .facts-container {
+      margin: 15px 0;
+      text-align: left;
+    }
+
+    .fact-item {
+      background: #f8f9ff;
+      margin-bottom: 5px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      border-left: 4px solid #5d78ff;
+      font-size: 14px;
+    }
+
+    .fact-item:nth-child(1) { border-left-color: #4CAF50; }
+    .fact-item:nth-child(2) { border-left-color: #FF9800; }
+    .fact-item:nth-child(3) { border-left-color: #F44336; }
+
+    .score-display {
       font-size: 16px;
-      background-color: #F44336;
-      color: white;
+      margin: 7px 0;
+      padding: 7px;
+      background: #f5f5f5;
+      border-radius: 12px;
+      display: inline-block;
+      text-align: center;
+    }
+
+    #username {
+  text-align: center;
+  margin-bottom: 5px;
+}
+
+    .buttons-container {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 7px;
+      flex-wrap: nowrap;
+    }
+
+    .action-btn {
+      flex: 1;
+      padding: 10px;
+      font-size: 14px;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
+      color: white;
       cursor: pointer;
-      position: relative;
-      overflow: hidden;
       transition: all 0.3s;
-      display: inline-flex;
+      display: flex;
       align-items: center;
       justify-content: center;
-      min-width: 150px;
+      position: relative;
     }
 
-    .back-btn:hover {
-      background-color: #d32f2f;
+    .retry-btn {
+      background-color: #F44336;
+    }
+
+    .menu-btn {
+      background-color: #2196F3;
+    }
+
+    /* Стили для отключенной кнопки */
+    .action-btn.disabled {
+      background-color: #cccccc;
+      color: #666666;
+      cursor: not-allowed;
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    /* Отключаем анимацию для отключенных кнопок */
+    .action-btn.disabled::before {
+      animation: none;
+    }
+
+    .action-btn:hover:not(.disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     }
 
-    .back-btn:active {
+    .action-btn:active:not(.disabled) {
       transform: translateY(1px);
     }
 
-    .back-btn::before {
-      content: "↓";
+    .action-btn::before {
       position: absolute;
-      left: 15px;
-      font-size: 20px;
-      animation: moveUpDown 1.5s infinite ease-in-out;
+      left: 10px;
+      font-size: 16px;
     }
 
-    @keyframes moveUpDown {
-      0%, 100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(3px);
-      }
+    .retry-btn::before {
+      content: "↻";
+      animation: spin 2s infinite linear;
+    }
+
+    .menu-btn::before {
+      content: "☰";
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
     }
 
     @keyframes fadeIn {
       from {
         opacity: 0;
-        transform: scale(1.03);
+        transform: translateY(10px);
       }
       to {
         opacity: 1;
-        transform: scale(1);
+        transform: translateY(0);
       }
     }
   </style>
 </head>
 <body>
-  <div id="result-container">
-    <h1>Увы! Неправильно 😞</h1>
-    <p>Правильное направление было таким:</p>
-    <img id="answer-graph" src="" alt="Ответ" />
-    <button class="back-btn">В меню</button>
+  <div class="main-container">
+    <h1>Неверный ответ 😕</h1>
+
+    <div>
+      <h2>Правильный график:</h2>
+      <img id="plot-image" alt="График ответа">
+    </div>
+
+    <div class="facts-container">
+      <div class="fact-item" id="fact1"></div>
+      <div class="fact-item" id="fact2"></div>
+      <div class="fact-item" id="fact3"></div>
+    </div>
+
+    <div class="score-display">
+      Ваш текущий счёт: <span id="score">0</span>
+      <div id="attempts-message" style="margin-top: 5px; font-size: 14px; color: #666;"></div>
+    </div>
+
+    <div class="buttons-container">
+      <button id="retry-btn" class="action-btn retry-btn" onclick="navigateTo('quiz.html')">
+        Еще раз
+      </button>
+      <button id="menu-btn" class="action-btn menu-btn" onclick="navigateToBotApp()">
+        В главное меню
+      </button>
+    </div>
   </div>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const filename = params.get('file');
-    if (filename) {
-      document.getElementById("answer-graph").src = `../answers/${filename}`;
-    } else {
-      document.getElementById("answer-graph").alt = "Файл не указан.";
+    const urlParams = new URLSearchParams(window.location.search);
+    const filename = urlParams.get('file');
+    const retryBtn = document.getElementById('retry-btn');
+    const menuBtn = document.getElementById('menu-btn');
+    const attemptsMessage = document.getElementById('attempts-message');
+    const usernameEl = document.createElement('div');
+    usernameEl.id = 'username';
+    document.querySelector('.score-display').prepend(usernameEl);
+
+    async function updateData() {
+      try {
+        const response = await fetch("/api/check_user", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+
+          // Обновляем данные пользователя
+          if (data.username) {
+            document.getElementById("score").textContent = data.score;
+
+            // Обновляем статус лимита
+            if (data.limit_reached && data.limit_reached > 0) {
+              attemptsMessage.style.color = '#4CAF50';
+              retryBtn.classList.remove("disabled");
+              retryBtn.disabled = false;
+            } else {
+              attemptsMessage.style.color = '#F44336';
+              retryBtn.classList.add("disabled");
+              retryBtn.disabled = true;
+              retryBtn.textContent = 'Лимит исчерпан';
+            }
+          }
+
+          // Загружаем график и факты
+          if (filename) {
+            const plotImg = document.getElementById('plot-image');
+            const imagePaths = [
+              `/questions/answers/${filename}`,
+              `/answers/${filename}`,
+              `answers/${filename}`,
+              `../answers/${filename}`
+            ];
+
+            const timestamp = new Date().getTime();
+            let imageLoaded = false;
+
+            for (const path of imagePaths) {
+              const testImg = new Image();
+              testImg.src = `${path}?t=${timestamp}`;
+
+              await new Promise(resolve => {
+                testImg.onload = () => {
+                  if (!imageLoaded) {
+                    plotImg.src = testImg.src;
+                    imageLoaded = true;
+                  }
+                  resolve();
+                };
+                testImg.onerror = resolve;
+              });
+
+              if (imageLoaded) break;
+            }
+
+            if (!imageLoaded) {
+              plotImg.alt = 'График не доступен';
+            }
+
+            try {
+              const questionsResponse = await fetch("/questions/list.json");
+              if (questionsResponse.ok) {
+                const questions = await questionsResponse.json();
+                const questionInfo = questions.find(q => q.file === filename);
+
+                if (questionInfo) {
+                  document.getElementById("fact1").textContent = questionInfo.fact_1 || 'Нет информации';
+                  document.getElementById("fact2").textContent = questionInfo.fact_2 || 'Нет информации';
+                  document.getElementById("fact3").textContent = questionInfo.fact_3 || 'Нет информации';
+                }
+              }
+            } catch (e) {
+              console.error('Ошибка загрузки list.json:', e);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Ошибка при загрузке данных:', error);
+      }
     }
 
-    document.querySelector('.back-btn').addEventListener('click', function() {
-      location.href = 'bot_app.html';
-    });
+    function navigateTo(page) {
+      disableButtons();
+      setTimeout(() => {
+        window.location.href = page;
+      }, 200);
+    }
+
+    function navigateToBotApp() {
+      disableButtons();
+      setTimeout(() => {
+        window.location.href = "bot_app.html";
+      }, 200);
+    }
+
+    function disableButtons() {
+      [retryBtn, menuBtn].forEach(btn => {
+        btn.classList.add('disabled');
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", updateData);
   </script>
 </body>
 </html>

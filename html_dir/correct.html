@@ -3,123 +3,469 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Правильно!</title>
+  <title>Правильно</title>
   <style>
+    /* Основные стили */
     body {
       font-family: Arial, sans-serif;
-      background-color: #e6f9f0;
+      background-color: #fff;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       margin: 0;
+      padding: 10px;
+      box-sizing: border-box;
+      position: relative;
+      overflow: hidden;
     }
 
-    #result-container {
+    /* Анимация заполнения */
+    .page-fill {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #8BC34A;
+      z-index: 1000;
+      clip-path: circle(200% at 50% 50%);
+      animation: fillScreen 1.4s cubic-bezier(0.36, 0, 0.24, 1) forwards;
+    }
+
+
+    .checkmark-container::before {
+      content: "";
+      position: absolute;
+      width: 160px;
+      height: 160px;
+      border-radius: 55%;
+      background: radial-gradient(circle, rgba(139,195,74,0.3) 0%, transparent 70%);
+      z-index: -1;
+      animation: ripple 2s ease-out;
+    }
+
+    @keyframes ripple {
+      0% {
+        transform: scale(0.5);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(1.4);
+        opacity: 0;
+      }
+    }
+
+    /* Анимация галочки */
+    .checkmark-container {
+      position: fixed;
+      background-color: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(3px);
+      padding: 30px;
+
+      border-radius: 4000px;
+      border-radius: 50%;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1001;
+      opacity: 0;
+      animation:
+        checkmarkFadeIn 0.9s cubic-bezier(0.5, 0, 0.5, 1) 0.9s forwards,
+        checkmarkFadeOut 0.5s ease-out 1.5s forwards;
+    }
+
+    .checkmark {
+      width: 200px;
+      height: 200px;
+    }
+
+    .checkmark-circle {
+      stroke-dasharray: 200;
+      stroke-dashoffset: 200;
+      stroke-width: 4;
+      stroke-miterlimit: 120;
+      stroke: #fff;
+      fill: none;
+      animation: stroke 0.1s cubic-bezier(0.5, 0, 0.24, 1) 0.8s forwards;
+    }
+
+    .checkmark-check {
+      transform-origin: 50% 50%;
+      stroke-dasharray: 0;
+      stroke-dashoffset: 48;
+      stroke: #fff;
+      stroke-width: 6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-miterlimit: 10;
+      animation: stroke 0.3s cubic-bezier(0.36, 0, 0.24, 1) 1.3s forwards;
+    }
+
+    /* Ключевые кадры анимации */
+    @keyframes fillScreen {
+      0% {
+        clip-path: circle(0% at 50% 50%);
+        opacity: 0;
+      }
+      20% {
+        opacity: 1;
+      }
+      100% {
+        clip-path: circle(150% at 50% 50%);
+        opacity: 1;
+      }
+    }
+
+    @keyframes checkmarkFadeIn {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
+      }
+      100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+    }
+
+    @keyframes checkmarkFadeOut {
+      0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.2);
+      }
+    }
+
+    @keyframes stroke {
+      100% { stroke-dashoffset: 0; }
+    }
+
+    /* Стили основного контента */
+    .main-container {
       background: white;
       padding: 20px;
       border-radius: 10px;
-      max-width: 400px;
       width: 100%;
+      max-width: 480px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
       text-align: center;
-      box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
-      animation: fadeIn 0.5s ease;
+      opacity: 0;
+      animation: contentFadeIn 0.5s ease-out 2s forwards;
     }
 
-    img {
-      max-width: 100%;
-      border-radius: 10px;
-      margin: 20px 0;
+    @keyframes contentFadeIn {
+      0% { opacity: 0; transform: translateY(10px); }
+      100% { opacity: 1; transform: translateY(0); }
     }
 
     h1 {
-      font-size: 24px;
-      color: #2d7a4b;
+      font-size: 22px;
+      color: #2e7d32;
+      margin-top: 0;
+      margin-bottom: 16px;
     }
 
-    p {
-      font-size: 16px;
+    h2 {
+      font-size: 18px;
       color: #333;
+      margin: 20px 0 12px;
     }
 
-    .back-btn {
-      margin-top: 20px;
-      padding: 12px 24px 12px 40px;
+    #plot-image {
+      max-width: 100%;
+      height: auto;
+      border-radius: 6px;
+      margin: 5px 0;
+      border: 1px solid #eee;
+    }
+
+    .facts-container {
+      margin: 15px 0;
+      text-align: left;
+    }
+
+    .fact-item {
+      background: #f8f9ff;
+      margin-bottom: 5px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      border-left: 4px solid #5d78ff;
+      font-size: 14px;
+    }
+
+    .fact-item:nth-child(1) { border-left-color: #4CAF50; }
+    .fact-item:nth-child(2) { border-left-color: #FF9800; }
+    .fact-item:nth-child(3) { border-left-color: #F44336; }
+
+    .score-display {
       font-size: 16px;
-      background-color: #4CAF50;
-      color: white;
+      margin: 7px 0;
+      padding: 7px;
+      background: #f5f5f5;
+      border-radius: 12px;
+      display: inline-block;
+      text-align: center;
+    }
+
+    #username {
+      text-align: center;
+      margin-bottom: 5px;
+    }
+
+    .buttons-container {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 7px;
+      flex-wrap: nowrap;
+    }
+
+    .action-btn {
+      flex: 1;
+      padding: 10px;
+      font-size: 14px;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
+      color: white;
       cursor: pointer;
-      position: relative;
-      overflow: hidden;
       transition: all 0.3s;
-      display: inline-flex;
+      display: flex;
       align-items: center;
       justify-content: center;
-      min-width: 150px;
+      position: relative;
     }
 
-    .back-btn:hover {
-      background-color: #3e8e41;
+    .next-btn {
+      background-color: #4CAF50;
+    }
+
+    .menu-btn {
+      background-color: #2196F3;
+    }
+
+    .action-btn.disabled {
+      background-color: #cccccc;
+      color: #666666;
+      cursor: not-allowed;
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    .action-btn.disabled::before {
+      animation: none;
+    }
+
+    .page-unfill {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #8BC34A;
+  z-index: 1000;
+  clip-path: circle(150% at 50% 50%);
+  opacity: 1;
+  animation: unfillScreen 1s cubic-bezier(0.36, 0, 0.24, 1) 2s forwards;
+}
+
+@keyframes unfillScreen {
+  0% {
+    clip-path: circle(150% at 50% 50%);
+    opacity: 1;
+  }
+  100% {
+    clip-path: circle(0% at 50% 50%);
+    opacity: 0;
+  }
+}
+
+    .action-btn:hover:not(.disabled) {
       transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.15);
     }
 
-    .back-btn:active {
+    .action-btn:active:not(.disabled) {
       transform: translateY(1px);
     }
 
-    .back-btn::before {
-      content: "↓";
+    .action-btn::before {
       position: absolute;
-      left: 15px;
-      font-size: 20px;
-      transform: rotate(180deg);
-      animation: moveUpDown 1.5s infinite ease-in-out;
+      left: 10px;
+      font-size: 16px;
     }
 
-    @keyframes moveUpDown {
-      0%, 100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(3px);
-      }
+    .next-btn::before {
+      content: "→";
     }
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: scale(1.03);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
+    .menu-btn::before {
+      content: "☰";
     }
   </style>
 </head>
 <body>
-  <div id="result-container">
-    <h1>Отлично! Вы угадали 📈</h1>
-    <p>Вот как двигалась цена:</p>
-    <img id="answer-graph" src="" alt="Ответ" />
-    <button class="back-btn">В меню</button>
+  <!-- Анимационные элементы -->
+  <div class="page-fill"></div>
+  <div class="page-unfill" style="display: none;"></div>
+  <div class="checkmark-container">
+    <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+      <circle class="checkmark-circle" cx="26" cy="26" r="24" fill="none"/>
+      <path class="checkmark-check" fill="none" d="M16 28l6 6 14-14"/>
+    </svg>
+  </div>
+
+  <!-- Основной контент -->
+  <div class="main-container">
+    <h1>Правильный ответ 🎉</h1>
+
+    <div>
+      <h2>Правильный график:</h2>
+      <img id="plot-image" alt="График ответа">
+    </div>
+
+    <div class="facts-container">
+      <div class="fact-item" id="fact1"></div>
+      <div class="fact-item" id="fact2"></div>
+      <div class="fact-item" id="fact3"></div>
+    </div>
+
+    <div class="score-display">
+      Ваш текущий счёт: <span id="score">0</span>
+      <div id="attempts-message" style="margin-top: 5px; font-size: 14px; color: #666;"></div>
+    </div>
+
+    <div class="buttons-container">
+      <button id="next-btn" class="action-btn next-btn" onclick="navigateTo('quiz.html')">
+        Следующий вопрос
+      </button>
+      <button id="menu-btn" class="action-btn menu-btn" onclick="navigateToBotApp()">
+        В главное меню
+      </button>
+    </div>
   </div>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const filename = params.get('file');
-    if (filename) {
-      document.getElementById("answer-graph").src = `../answers/${filename}`;
-    } else {
-      document.getElementById("answer-graph").alt = "Файл не указан.";
+    const urlParams = new URLSearchParams(window.location.search);
+    const filename = urlParams.get('file');
+    const nextBtn = document.getElementById('next-btn');
+    const menuBtn = document.getElementById('menu-btn');
+    const attemptsMessage = document.getElementById('attempts-message');
+    const usernameEl = document.createElement('div');
+    usernameEl.id = 'username';
+    document.querySelector('.score-display').prepend(usernameEl);
+
+    // Удаляем анимационные элементы после завершения
+    setTimeout(() => {
+      document.querySelector('.page-fill').remove();
+      document.querySelector('.checkmark-container').remove();
+    }, 2500);
+
+    async function updateData() {
+      try {
+        const response = await fetch("/api/check_user", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+
+          if (data.username) {
+            document.getElementById("score").textContent = data.score;
+
+            if (data.limit_reached && data.limit_reached > 0) {
+              attemptsMessage.style.color = '#4CAF50';
+              nextBtn.classList.remove("disabled");
+              nextBtn.disabled = false;
+            } else {
+              attemptsMessage.style.color = '#F44336';
+              nextBtn.classList.add("disabled");
+              nextBtn.disabled = true;
+              nextBtn.textContent = 'Лимит исчерпан';
+            }
+          }
+
+          if (filename) {
+            const plotImg = document.getElementById('plot-image');
+            const imagePaths = [
+              `/questions/answers/${filename}`,
+              `/answers/${filename}`,
+              `answers/${filename}`,
+              `../answers/${filename}`
+            ];
+
+            const timestamp = new Date().getTime();
+            let imageLoaded = false;
+
+            for (const path of imagePaths) {
+              const testImg = new Image();
+              testImg.src = `${path}?t=${timestamp}`;
+
+              await new Promise(resolve => {
+                testImg.onload = () => {
+                  if (!imageLoaded) {
+                    plotImg.src = testImg.src;
+                    imageLoaded = true;
+                  }
+                  resolve();
+                };
+                testImg.onerror = resolve;
+              });
+
+              if (imageLoaded) break;
+            }
+
+            if (!imageLoaded) {
+              plotImg.alt = 'График не доступен';
+            }
+
+            try {
+              const questionsResponse = await fetch("/questions/list.json");
+              if (questionsResponse.ok) {
+                const questions = await questionsResponse.json();
+                const questionInfo = questions.find(q => q.file === filename);
+
+                if (questionInfo) {
+                  document.getElementById("fact1").textContent = questionInfo.fact_1 || 'Нет информации';
+                  document.getElementById("fact2").textContent = questionInfo.fact_2 || 'Нет информации';
+                  document.getElementById("fact3").textContent = questionInfo.fact_3 || 'Нет информации';
+                }
+              }
+            } catch (e) {
+              console.error('Ошибка загрузки list.json:', e);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Ошибка при загрузке данных:', error);
+      }
     }
 
-    document.querySelector('.back-btn').addEventListener('click', function() {
-      location.href = 'bot_app.html';
-    });
+    function navigateTo(page) {
+      disableButtons();
+      setTimeout(() => {
+        window.location.href = page;
+      }, 200);
+    }
+
+    function navigateToBotApp() {
+      disableButtons();
+      setTimeout(() => {
+        window.location.href = "bot_app.html";
+      }, 200);
+    }
+
+    function disableButtons() {
+      [nextBtn, menuBtn].forEach(btn => {
+        btn.classList.add('disabled');
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", updateData);
   </script>
 </body>
 </html>
