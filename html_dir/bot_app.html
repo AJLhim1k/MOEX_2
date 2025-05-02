@@ -282,6 +282,20 @@
       text-align: left;
       border-bottom: 1px solid #eee;
     }
+    .btn-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.btn.secondary {
+  background-color: #d40000;
+}
+
+.btn.secondary:hover {
+  background-color: #bb0000;
+}
+
 
     .rating-table th {
       background-color: #f5f5f5;
@@ -310,8 +324,11 @@
     <div id="podium" class="podium"></div>
     <div id="userPosition" class="user-position"></div>
   </div>
+<div class="btn-row">
+  <button class="btn secondary" onclick="navigateTo('education.html')">Обучение</button>
+  <button class="btn" id="quizButton" onclick="navigateTo('quiz.html')">Умный инвестор</button>
+</div>
 
-  <button class="btn" onclick="navigateTo('quiz.html')">Перейти к тесту</button>
 </div>
 
 <script>
@@ -362,10 +379,10 @@
 
     const data = await response.json();
     if (data.username) {
-      document.getElementById("username").textContent = `@${data.username}`;
+      document.getElementById("username").textContent = `${data.username}`;
       document.getElementById("score").textContent = data.score;
       const limitStatusEl = document.getElementById("limitStatus");
-const button = document.querySelector(".btn");
+      const button = document.getElementById("quizButton");
 
 if (data.limit_reached && data.limit_reached > 0) {
   limitStatusEl.textContent = `✅ Осталось ${data.limit_reached} попыток`;
@@ -421,7 +438,7 @@ if (data.limit_reached && data.limit_reached > 0) {
           <div class="place ${classes[i]}">
             <div class="medal">${idx + 1}</div>
             <div class="player-info">
-              <div class="player-name" title="@${p.username}">${isUser ? "⭐@" + p.username : "@" + p.username}</div>
+              <div class="player-name" title="@${p.username}">${isUser ? "⭐" + p.username : "@" + p.username}</div>
               <div class="player-score">${p.score}$</div>
             </div>
           </div>`;

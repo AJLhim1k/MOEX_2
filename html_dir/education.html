@@ -127,6 +127,23 @@
       }
     }
 
+    .graph-button1 {
+  background-color: #fff5f5; /* почти белый с каплей красного */
+}
+
+.graph-button2 {
+  background-color: #ffeaea; /* чуть насыщеннее */
+}
+
+.graph-button3 {
+  background-color: #ffdede; /* заметнее */
+}
+
+.graph-button4 {
+  background-color: #ffd1d1; /* самый красный, но всё ещё пастель */
+}
+
+
     @media (max-width: 500px) {
       .graph-buttons {
         grid-template-columns: 1fr;
@@ -146,34 +163,31 @@
     <p class="description">Изучите различные рыночные ситуации</p>
 
     <div class="graph-buttons">
-      <button class="graph-button" onclick="location.href='../questions/answers/plot100.png'">
-        <img src="../questions/answers/plot100.png" alt="График 1" class="graph-preview">
+      <button class="graph-button graph-button1" onclick="location.href='strats/pd/pump&dump.html'">
+        <img src="../questions/plot100.png" alt="График 1" class="graph-preview">
         <div class="graph-info">
           <div class="graph-title">Pump & dump</div>
           <div class="graph-desc">Пример устойчивого роста цены</div>
         </div>
       </button>
-
-      <button class="graph-button" onclick="location.href='../questions/answers/plot100.png'">
-        <img src="../questions/answers/plot100.png" alt="График 2" class="graph-preview">
+<button class="graph-button graph-button2" onclick="location.href='./strats/corner/corner.html'">
+        <img src="../questions/plot100.png" alt="График 2" class="graph-preview">
         <div class="graph-info">
           <div class="graph-title">Corner</div>
           <div class="graph-desc">Классический медвежий рынок</div>
         </div>
       </button>
-
-      <button class="graph-button" onclick="location.href='../questions/answers/plot100.png'">
-        <img src="../questions/answers/plot100.png" alt="График 3" class="graph-preview">
+<button class="graph-button graph-button3" onclick="location.href='./strats/spoofing/spoofing.html'">
+        <img src="../questions/plot100.png" alt="График 3" class="graph-preview">
         <div class="graph-info">
           <div class="graph-title">Spoofing</div>
           <div class="graph-desc">Флэт без четкого направления</div>
         </div>
       </button>
-
-      <button class="graph-button" onclick="location.href='../questions/answers/plot100.png'">
-        <img src="../questions/answers/plot100.png" alt="График 4" class="graph-preview">
+<button class="graph-button graph-button4" onclick="location.href='strats/washtrading/washtrading.html'">
+        <img src="../questions/plot100.png" alt="График 4" class="graph-preview">
         <div class="graph-info">
-          <div class="graph-title">Водосброс</div>
+          <div class="graph-title">Wash Trading</div>
           <div class="graph-desc">Смена рыночной тенденции</div>
         </div>
       </button>

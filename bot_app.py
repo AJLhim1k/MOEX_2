@@ -54,10 +54,10 @@ async def init_session(request):
 @dp.message(Command("start"))
 async def start_cmd(message: types.Message):
     user = message.from_user
-    db.get_or_create_user(user.id, user.username or user.first_name)
+    db.get_or_create_user(user.id, user.first_name)
 
     web_app_url = (
-        f"{os.getenv('WEB_APP_URL')}?user_id={user.id}&username={user.username or user.first_name}"
+        f"{os.getenv('WEB_APP_URL')}?user_id={user.id}&username={user.first_name}"
     )
 
     kb = types.ReplyKeyboardMarkup(
@@ -164,18 +164,30 @@ async def api_get_rating(request):
         'nearby_players': nearby_players  # Добавляем ближайших конкурентов
     })
 
+
+async def serve_list_json(request):
+    json_path = os.path.join(questions_path, "list.json")
+    if not os.path.exists(json_path):
+        return web.json_response({'error': 'Файл list.json не найден'}, status=404)
+
+    with open(json_path, encoding='utf-8') as f:
+        data = json.load(f)
+    return web.json_response(data)
+
+
 # ==== РОУТИНГ ====
 
-questions_path = os.path.join(BASE_DIR, "questions")
-
+questions_path = os.path  .join(BASE_DIR, "questions")
+app.router.add_get('/questions/list.json', serve_list_json)
 app.router.add_get('/api/get_rating', api_get_rating)
 app.router.add_get('/', index)
 app.router.add_get('/init_session', init_session)
 app.router.add_post('/api/check_user', api_check_user)
 app.router.add_post('/api/submit_answer', api_submit_answer)
-app.router.add_static('/html_dir/', path='html_dir')
+app.router.add_static('/html_dir/', path=os.path.join(BASE_DIR, 'html_dir'))
 app.router.add_static('/questions/', path=questions_path)
 app.router.add_post('/api/use_attempt', api_use_attempt)
+
 
 
 # Старт aiogram

@@ -10,12 +10,119 @@
       background-color: #ffecec;
       display: flex;
       justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+      align-items: flex-start; /* изменено с center на flex-start */
+      min-height: 100vh; /* изменено с height на min-height */
       margin: 0;
-      padding: 10px;
+      padding: 20px 10px; /* увеличен отступ сверху/снизу */
       box-sizing: border-box;
+      overflow-y: auto; /* разрешаем вертикальную прокрутку */
     }
+
+    .page-fill {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: #f44336;
+  z-index: 1000;
+  clip-path: circle(200% at 50% 50%);
+  animation: fillScreen 1.4s cubic-bezier(0.36, 0, 0.24, 1) forwards;
+}
+
+.crossmark-container::before {
+  content: "";
+  position: absolute;
+  width: 160px;
+  height: 160px;
+  border-radius: 55%;
+  background: radial-gradient(circle, rgba(244,67,54,0.3) 0%, transparent 70%);
+  z-index: -1;
+  animation: ripple 2s ease-out;
+}
+
+.crossmark-container {
+  position: fixed;
+  background-color: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(3px);
+  padding: 30px;
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1001;
+  opacity: 0;
+  animation:
+    crossmarkFadeIn 0.9s cubic-bezier(0.5, 0, 0.5, 1) 0.9s forwards,
+    crossmarkFadeOut 0.5s ease-out 1.5s forwards;
+}
+
+.crossmark {
+  width: 200px;
+  height: 200px;
+}
+
+.crossmark-circle {
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  stroke-width: 4;
+  stroke: #fff;
+  fill: none;
+  animation: stroke 0.1s ease 0.8s forwards;
+}
+
+.crossmark-cross {
+  stroke: #fff;
+  stroke-width: 6;
+  stroke-linecap: round;
+  stroke-dasharray: 48;
+  stroke-dashoffset: 48;
+  animation: stroke 0.3s ease 1.3s forwards;
+}
+
+@keyframes fillScreen {
+  0% {
+    clip-path: circle(0% at 50% 50%);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    clip-path: circle(150% at 50% 50%);
+    opacity: 1;
+  }
+}
+
+@keyframes crossmarkFadeIn {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+@keyframes crossmarkFadeOut {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.2);
+  }
+}
+
+@keyframes stroke {
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
 
     .main-container {
       background: white;
@@ -26,6 +133,7 @@
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
       text-align: center;
       animation: fadeIn 0.5s ease;
+      display: none;
     }
 
     h1 {
@@ -169,6 +277,16 @@
   </style>
 </head>
 <body>
+<div class="page-fill"></div>
+
+<div class="crossmark-container">
+  <svg class="crossmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+    <circle class="crossmark-circle" cx="26" cy="26" r="24" fill="none"/>
+    <line class="crossmark-cross" x1="16" y1="16" x2="36" y2="36" />
+    <line class="crossmark-cross" x1="36" y1="16" x2="16" y2="36" />
+  </svg>
+</div>
+
   <div class="main-container">
     <h1>Неверный ответ 😕</h1>
 
@@ -271,7 +389,7 @@
             }
 
             try {
-              const questionsResponse = await fetch("/questions/list.json");
+              const questionsResponse = await fetch("../html_dir/list.json");
               if (questionsResponse.ok) {
                 const questions = await questionsResponse.json();
                 const questionInfo = questions.find(q => q.file === filename);
@@ -311,6 +429,23 @@
         btn.classList.add('disabled');
       });
     }
+setTimeout(() => {
+  const fill = document.querySelector('.page-fill');
+  const cross = document.querySelector('.crossmark-container');
+  if (fill) fill.remove();
+  if (cross) cross.remove();
+
+  // Показываем основной слайд
+  const main = document.querySelector('.main-container');
+  if (main) {
+    main.style.display = 'block';
+    main.style.animation = 'fadeIn 0.5s ease'; // плавное появление
+  }
+
+  // Загружаем данные
+  updateData();
+}, 2500);
+
 
     document.addEventListener("DOMContentLoaded", updateData);
   </script>

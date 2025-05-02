@@ -5,17 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Quiz</title>
   <style>
-body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f7f9;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start; /* изменено с center на flex-start */
-  min-height: 100vh; /* изменено с height на min-height */
-  margin: 0;
-  padding: 20px 0; /* добавлено для отступа сверху и снизу */
-  overflow-y: auto; /* разрешаем вертикальную прокрутку */
-}
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f7f9;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px 0;
+      overflow-y: auto;
+    }
 
     #quiz-container {
       background: white;
@@ -120,15 +120,15 @@ body {
     }
 
     .fade-out {
-  animation: fadeOut 0.5s ease forwards;
-}
+      animation: fadeOut 0.5s ease forwards;
+    }
 
-@keyframes fadeOut {
-  to {
-    opacity: 0;
-    transform: translateY(20px) scale(0.98);
-  }
-}
+    @keyframes fadeOut {
+      to {
+        opacity: 0;
+        transform: translateY(20px) scale(0.98);
+      }
+    }
 
     @keyframes fall {
       0%, 100% {
@@ -145,17 +145,6 @@ body {
       margin-left: 20px;
     }
 
-    .fade-out {
-      animation: fadeOut 0.5s ease forwards;
-    }
-
-    @keyframes fadeOut {
-      to {
-        opacity: 0;
-        transform: scale(0.97);
-      }
-    }
-
     @keyframes fadeIn {
       from {
         opacity: 0;
@@ -165,6 +154,21 @@ body {
         opacity: 1;
         transform: scale(1);
       }
+    }
+
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid rgba(0,0,0,.1);
+      border-radius: 50%;
+      border-top-color: #5d78ff;
+      animation: spin 1s ease-in-out infinite;
+      margin-right: 10px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
@@ -176,9 +180,9 @@ body {
     <img id="graph-img" src="" alt="График">
 
     <div class="facts-container">
-      <div class="fact-item" id="fact1"></div>
-      <div class="fact-item" id="fact2"></div>
-      <div class="fact-item" id="fact3"></div>
+      <div class="fact-item" id="fact1">Факт 1 о графике</div>
+      <div class="fact-item" id="fact2">Факт 2 о графике</div>
+      <div class="fact-item" id="fact3">Факт 3 о графике</div>
     </div>
 
     <form id="quiz-form">
@@ -202,76 +206,74 @@ body {
       document.getElementById("answer").value = value;
     }
 
-    document.getElementById("quiz-form").addEventListener("submit", async function(event) {
+    document.getElementById("quiz-form").addEventListener("submit", function(event) {
       event.preventDefault();
       const userAnswer = document.getElementById("answer").value;
       const container = document.getElementById("quiz-container");
 
-  container.classList.add("fade-out");
+      container.classList.add("fade-out");
 
       const isCorrect = (
         (correctAnswer === true && userAnswer === "long") ||
         (correctAnswer === false && userAnswer === "short")
       );
 
-      const delta = isCorrect ? 5 : -5;
-
-      try {
-        await fetch("/api/submit_answer", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            correct: isCorrect
-          })
-        });
-      } catch (e) {
-        console.error("Ошибка при отправке результата:", e);
-      }
-
-      container.classList.add("fade-out");
       setTimeout(() => {
-        const resultPage = isCorrect ? "correct.html" : "wrong.html";
+        const resultPage = isCorrect ? "correct_spoofing.html" : "wrong_spoofing.html";
         window.location.href = `${resultPage}?file=${encodeURIComponent(currentFilename)}`;
       }, 500);
     });
 
-    fetch("../html_dir/list.json")
-      .then(response => response.json())
-      .then(items => {
-        if (!items.length) throw new Error("Список файлов пуст");
+    // Функция для загрузки данных из JSON
+    async function loadQuestions() {
+      try {
+        const response = await fetch('../../list.json');
+        if (!response.ok) {
+          throw new Error('Не удалось загрузить данные вопросов');
+        }
+        const questions = await response.json();
+        return questions;
+      } catch (error) {
+        console.error('Ошибка загрузки вопросов:', error);
+        return [];
+      }
+    }
 
-        const randomItem = items[Math.floor(Math.random() * items.length)];
-        document.getElementById("graph-img").src = `../questions/${randomItem.file}`;
-        correctAnswer = randomItem.up;
-        currentFilename = randomItem.file;
+    // Инициализация при загрузке страницы
+    document.addEventListener("DOMContentLoaded", async function() {
+  const questions = await loadQuestions();
 
-        // Устанавливаем факты
-        document.getElementById("fact1").textContent = randomItem.fact_1;
-        document.getElementById("fact2").textContent = randomItem.fact_2;
-        document.getElementById("fact3").textContent = randomItem.fact_3;
-      })
-      .catch(error => {
-        console.error("Ошибка загрузки графика:", error);
-        document.getElementById("graph-img").alt = "Ошибка загрузки изображения.";
-      });
-
-
-
-async function useAttempt() {
-  const response = await fetch('/api/use_attempt', { method: 'POST' });
-  const data = await response.json();
-
-  if (data.error) {
-    alert("Лимит попыток исчерпан!");
-    // Например, перенаправить на главную или показать заглушку
-    window.location.href = "/";
-  } else {
-    console.log("Осталось попыток:", data.remaining_attempts);
-    // Можно отобразить пользователю
+  if (questions.length === 0) {
+    console.error("Список файлов пуст");
+    document.getElementById("graph-img").alt = "Ошибка загрузки изображения.";
+    return;
   }
-}
 
-document.addEventListener("DOMContentLoaded", useAttempt);
+  // Фильтрация: допускаем только графики с номерами 50–100 и 120–200
+  const filteredQuestions = questions.filter(q => {
+    const match = q.file.match(/\d+/); // извлекаем число из имени файла
+    if (!match) return false;
+    const num = parseInt(match[0], 10);
+    return (num >= 100 && num <= 100) || (num >= 0 && num <= 0);
+  });
+
+  if (filteredQuestions.length === 0) {
+    console.error("Нет подходящих графиков после фильтрации");
+    document.getElementById("graph-img").alt = "Нет подходящих графиков.";
+    return;
+  }
+
+  const randomItem = filteredQuestions[Math.floor(Math.random() * filteredQuestions.length)];
+  document.getElementById("graph-img").src = `../../../questions/${randomItem.file}`;
+  correctAnswer = randomItem.up;
+  currentFilename = randomItem.file;
+
+  // Устанавливаем факты
+  document.getElementById("fact1").textContent = randomItem.fact_1;
+  document.getElementById("fact2").textContent = randomItem.fact_2;
+  document.getElementById("fact3").textContent = randomItem.fact_3;
+});
+
   </script>
 </body>
 </html>

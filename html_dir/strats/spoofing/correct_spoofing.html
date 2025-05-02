@@ -5,19 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Правильно</title>
   <style>
-body {
-  font-family: Arial, sans-serif;
-  background-color: #fff;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start; /* изменено с center на flex-start */
-  min-height: 100vh; /* изменено с height на min-height */
-  margin: 0;
-  padding: 20px 10px; /* увеличен отступ сверху/снизу */
-  box-sizing: border-box;
-  position: relative;
-  overflow: hidden;
-}
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px 10px;
+      box-sizing: border-box;
+      position: relative;
+      overflow-y: auto;
+    }
 
     /* Анимация заполнения */
     .page-fill {
@@ -29,10 +29,8 @@ body {
       background-color: #8BC34A;
       z-index: 1000;
       clip-path: circle(200% at 50% 50%);
-      overflow-y: hidden;
       animation: fillScreen 1.4s cubic-bezier(0.36, 0, 0.24, 1) forwards;
     }
-
 
     .checkmark-container::before {
       content: "";
@@ -62,8 +60,6 @@ body {
       background-color: rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(3px);
       padding: 30px;
-
-      border-radius: 4000px;
       border-radius: 50%;
       box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
       top: 50%;
@@ -260,28 +256,28 @@ body {
     }
 
     .page-unfill {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #8BC34A;
-  z-index: 1000;
-  clip-path: circle(150% at 50% 50%);
-  opacity: 1;
-  animation: unfillScreen 1s cubic-bezier(0.36, 0, 0.24, 1) 2s forwards;
-}
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: transparent;
+      z-index: 1000;
+      clip-path: circle(150% at 50% 50%);
+      opacity: 1;
+      animation: unfillScreen 1s cubic-bezier(0.36, 0, 0.24, 1) 2s forwards;
+    }
 
-@keyframes unfillScreen {
-  0% {
-    clip-path: circle(150% at 50% 50%);
-    opacity: 1;
-  }
-  100% {
-    clip-path: circle(0% at 50% 50%);
-    opacity: 0;
-  }
-}
+    @keyframes unfillScreen {
+      0% {
+        clip-path: circle(150% at 50% 50%);
+        opacity: 1;
+      }
+      100% {
+        clip-path: circle(0% at 50% 50%);
+        opacity: 0;
+      }
+    }
 
     .action-btn:hover:not(.disabled) {
       transform: translateY(-2px);
@@ -333,139 +329,96 @@ body {
       <div class="fact-item" id="fact3"></div>
     </div>
 
-    <div class="score-display">
-      Ваш текущий счёт: <span id="score">0</span>
-      <div id="attempts-message" style="margin-top: 5px; font-size: 14px; color: #666;"></div>
-    </div>
-
     <div class="buttons-container">
-      <button id="next-btn" class="action-btn next-btn" onclick="navigateTo('quiz.html')">
+      <button id="next-btn" class="action-btn next-btn" onclick="navigateTo('quiz_corner.html')">
         Следующий вопрос
       </button>
-      <button id="menu-btn" class="action-btn menu-btn" onclick="navigateToBotApp()">
+      <button id="menu-btn" class="action-btn menu-btn" onclick="navigateTo('../../education.html')">
         В главное меню
       </button>
     </div>
   </div>
 
   <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const filename = urlParams.get('file');
-    const nextBtn = document.getElementById('next-btn');
-    const menuBtn = document.getElementById('menu-btn');
-    const attemptsMessage = document.getElementById('attempts-message');
-    const usernameEl = document.createElement('div');
-    usernameEl.id = 'username';
-    document.querySelector('.score-display').prepend(usernameEl);
-
     // Удаляем анимационные элементы после завершения
     setTimeout(() => {
       document.querySelector('.page-fill').remove();
       document.querySelector('.checkmark-container').remove();
     }, 2500);
 
-    async function updateData() {
-      try {
-        const response = await fetch("/api/check_user", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" }
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-
-          if (data.username) {
-            document.getElementById("score").textContent = data.score;
-
-            if (data.limit_reached && data.limit_reached > 0) {
-              attemptsMessage.style.color = '#4CAF50';
-              nextBtn.classList.remove("disabled");
-              nextBtn.disabled = false;
-            } else {
-              attemptsMessage.style.color = '#F44336';
-              nextBtn.classList.add("disabled");
-              nextBtn.disabled = true;
-              nextBtn.textContent = 'Лимит исчерпан';
-            }
-          }
-
-          if (filename) {
-            const plotImg = document.getElementById('plot-image');
-            const imagePaths = [
-              `/questions/answers/${filename}`,
-              `/answers/${filename}`,
-              `answers/${filename}`,
-              `../answers/${filename}`
-            ];
-
-            const timestamp = new Date().getTime();
-            let imageLoaded = false;
-
-            for (const path of imagePaths) {
-              const testImg = new Image();
-              testImg.src = `${path}?t=${timestamp}`;
-
-              await new Promise(resolve => {
-                testImg.onload = () => {
-                  if (!imageLoaded) {
-                    plotImg.src = testImg.src;
-                    imageLoaded = true;
-                  }
-                  resolve();
-                };
-                testImg.onerror = resolve;
-              });
-
-              if (imageLoaded) break;
-            }
-
-            if (!imageLoaded) {
-              plotImg.alt = 'График не доступен';
-            }
-
-            try {
-              const questionsResponse = await fetch("../html_dir/list.json");
-              if (questionsResponse.ok) {
-                const questions = await questionsResponse.json();
-                const questionInfo = questions.find(q => q.file === filename);
-
-                if (questionInfo) {
-                  document.getElementById("fact1").textContent = questionInfo.fact_1 || 'Нет информации';
-                  document.getElementById("fact2").textContent = questionInfo.fact_2 || 'Нет информации';
-                  document.getElementById("fact3").textContent = questionInfo.fact_3 || 'Нет информации';
-                }
-              }
-            } catch (e) {
-              console.error('Ошибка загрузки list.json:', e);
-            }
-          }
-        }
-      } catch (error) {
-        console.error('Ошибка при загрузке данных:', error);
-      }
+    // Функция для получения параметра из URL
+    function getUrlParameter(name) {
+      name = name.replace(/[\[\]]/g, '\\$&');
+      const regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
+      const results = regex.exec(window.location.href);
+      if (!results) return null;
+      if (!results[2]) return '';
+      return decodeURIComponent(results[2].replace(/\+/g, ' '));
     }
 
+    // Функция для навигации
     function navigateTo(page) {
-      disableButtons();
+      document.querySelector('.page-unfill').style.display = 'block';
       setTimeout(() => {
         window.location.href = page;
       }, 200);
     }
 
-    function navigateToBotApp() {
-      disableButtons();
-      setTimeout(() => {
-        window.location.href = "bot_app.html";
-      }, 200);
+    // Загрузка данных вопроса
+    async function loadQuestionData() {
+      const filename = getUrlParameter('file');
+      if (!filename) return;
+
+      try {
+        // Пытаемся загрузить изображение
+        const imagePaths = [
+          `../../../questions/answers/${filename}`,
+          `answers/${filename}`,
+          `../answers/${filename}`
+        ];
+
+        let imageLoaded = false;
+        for (const path of imagePaths) {
+          const img = new Image();
+          img.src = path;
+
+          await new Promise(resolve => {
+            img.onload = () => {
+              if (!imageLoaded) {
+                document.getElementById('plot-image').src = path;
+                imageLoaded = true;
+              }
+              resolve();
+            };
+            img.onerror = resolve;
+          });
+
+          if (imageLoaded) break;
+        }
+
+        // Пытаемся загрузить факты
+        try {
+          const response = await fetch('../../list.json');
+          if (response.ok) {
+            const questions = await response.json();
+            const question = questions.find(q => q.file === filename);
+
+            if (question) {
+              document.getElementById('fact1').textContent = question.fact_1 || 'Нет информации';
+              document.getElementById('fact2').textContent = question.fact_2 || 'Нет информации';
+              document.getElementById('fact3').textContent = question.fact_3 || 'Нет информации';
+            }
+          }
+        } catch (e) {
+          console.error('Ошибка загрузки list.json:', e);
+        }
+      } catch (error) {
+        console.error('Ошибка загрузки данных:', error);
+      }
     }
 
-    function disableButtons() {
-      [nextBtn, menuBtn].forEach(btn => {
-        btn.classList.add('disabled');
-      });
-    }
-
-    document.addEventListener("DOMContentLoaded", updateData);
+    // Инициализация страницы
+    document.addEventListener("DOMContentLoaded", loadQuestionData);
   </script>
 </body>
 </html>
