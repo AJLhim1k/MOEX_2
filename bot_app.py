@@ -96,6 +96,35 @@ async def api_check_user(request):
         'remaining_attempts': remaining_attempts  # Отправляем количество оставшихся попыток
     })
 
+# Увеличение счётчика правильных ответов
+async def api_increment_correct(request):
+    data = await request.json()
+    name = data.get('name')
+    if not name:
+        return web.json_response({'error': 'Missing name'}, status=400)
+
+    db.increment_correct(name)
+    return web.json_response({'status': 'correct incremented'})
+
+# Увеличение счётчика неправильных ответов
+async def api_increment_wrong(request):
+    data = await request.json()
+    name = data.get('name')
+    if not name:
+        return web.json_response({'error': 'Missing name'}, status=400)
+
+    db.increment_wrong(name)
+    return web.json_response({'status': 'wrong incremented'})
+
+# Получение статистики по имени
+async def api_get_answer_stats(request):
+    name = request.query.get('name')
+    if not name:
+        return web.json_response({'error': 'Missing name'}, status=400)
+
+    stats = db.get_stats(name)
+    return web.json_response({'name': name, **stats})
+
 # Получение ответа и обновление очков
 async def api_submit_answer(request):
     session = await get_session(request)
@@ -163,6 +192,9 @@ async def api_get_rating(request):
         'user_score': user_score,
         'nearby_players': nearby_players  # Добавляем ближайших конкурентов
     })
+async def api_get_top_strategies(request):
+    strategies = db.get_top_strategies()
+    return web.json_response(strategies)
 
 
 async def serve_list_json(request):
@@ -187,6 +219,11 @@ app.router.add_post('/api/submit_answer', api_submit_answer)
 app.router.add_static('/html_dir/', path=os.path.join(BASE_DIR, 'html_dir'))
 app.router.add_static('/questions/', path=questions_path)
 app.router.add_post('/api/use_attempt', api_use_attempt)
+app.router.add_post('/api/answers/correct', api_increment_correct)
+app.router.add_post('/api/answers/wrong', api_increment_wrong)
+app.router.add_get('/api/answers/stats', api_get_answer_stats)
+app.router.add_get('/api/answers/top', api_get_top_strategies)
+
 
 
 

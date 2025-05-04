@@ -193,85 +193,114 @@ body {
       </div>
     </form>
   </div>
+<script>
+  let correctAnswer = null;
+  let currentFilename = null;
 
-  <script>
-    let correctAnswer = null;
-    let currentFilename = null;
+  function setAnswer(value) {
+    document.getElementById("answer").value = value;
+  }
 
-    function setAnswer(value) {
-      document.getElementById("answer").value = value;
+  document.getElementById("quiz-form").addEventListener("submit", async function(event) {
+    event.preventDefault();
+    const userAnswer = document.getElementById("answer").value;
+    const container = document.getElementById("quiz-container");
+
+    container.classList.add("fade-out");
+
+    let isCorrect = false;
+    if ((correctAnswer === true && userAnswer === "long") ||
+        (correctAnswer === false && userAnswer === "short")) {
+      isCorrect = true;
     }
 
-    document.getElementById("quiz-form").addEventListener("submit", async function(event) {
-      event.preventDefault();
-      const userAnswer = document.getElementById("answer").value;
-      const container = document.getElementById("quiz-container");
-
-  container.classList.add("fade-out");
-
-      const isCorrect = (
-        (correctAnswer === true && userAnswer === "long") ||
-        (correctAnswer === false && userAnswer === "short")
-      );
-
-      const delta = isCorrect ? 5 : -5;
-
-      try {
-        await fetch("/api/submit_answer", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            correct: isCorrect
-          })
-        });
-      } catch (e) {
-        console.error("Ошибка при отправке результата:", e);
+    // Определение категории по имени файла
+    let category = "unknown";
+    const fileMatch = currentFilename.match(/plot(\d{3})\.png/);
+    if (fileMatch) {
+      const number = parseInt(fileMatch[1], 10);
+      if (number >= 100 && number <= 110) {
+        category = "pump&dump";
+      } else {
+        category = "spoofing";
       }
+    }
 
-      container.classList.add("fade-out");
-      setTimeout(() => {
-        const resultPage = isCorrect ? "correct.html" : "wrong.html";
-        window.location.href = `${resultPage}?file=${encodeURIComponent(currentFilename)}`;
-      }, 500);
-    });
-
-    fetch("../html_dir/list.json")
-      .then(response => response.json())
-      .then(items => {
-        if (!items.length) throw new Error("Список файлов пуст");
-
-        const randomItem = items[Math.floor(Math.random() * items.length)];
-        document.getElementById("graph-img").src = `../questions/${randomItem.file}`;
-        correctAnswer = randomItem.up;
-        currentFilename = randomItem.file;
-
-        // Устанавливаем факты
-        document.getElementById("fact1").textContent = randomItem.fact_1;
-        document.getElementById("fact2").textContent = randomItem.fact_2;
-        document.getElementById("fact3").textContent = randomItem.fact_3;
-      })
-      .catch(error => {
-        console.error("Ошибка загрузки графика:", error);
-        document.getElementById("graph-img").alt = "Ошибка загрузки изображения.";
+    try {
+      // Отправляем результат
+      await fetch("/api/submit_answer", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          correct: isCorrect
+        })
       });
 
+      // Отправляем статистику категории
+      let endpoint = "";
+      if (isCorrect) {
+        endpoint = "/api/answers/correct";
+      } else {
+        endpoint = "/api/answers/wrong";
+      }
 
+      await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: category })
+      });
 
-async function useAttempt() {
-  const response = await fetch('/api/use_attempt', { method: 'POST' });
-  const data = await response.json();
+    } catch (e) {
+      console.error("Ошибка при отправке результата:", e);
+    }
 
-  if (data.error) {
-    alert("Лимит попыток исчерпан!");
-    // Например, перенаправить на главную или показать заглушку
-    window.location.href = "/";
-  } else {
-    console.log("Осталось попыток:", data.remaining_attempts);
-    // Можно отобразить пользователю
+    setTimeout(() => {
+      let resultPage = "";
+      if (isCorrect) {
+        resultPage = "correct.html";
+      } else {
+        resultPage = "wrong.html";
+      }
+
+      window.location.href = resultPage + "?file=" + encodeURIComponent(currentFilename);
+    }, 500);
+  });
+
+  fetch("../html_dir/list.json")
+    .then(response => response.json())
+    .then(items => {
+      if (!items.length) {
+        throw new Error("Список файлов пуст");
+      }
+
+      const randomItem = items[Math.floor(Math.random() * items.length)];
+      document.getElementById("graph-img").src = `../questions/${randomItem.file}`;
+      correctAnswer = randomItem.up;
+      currentFilename = randomItem.file;
+
+      document.getElementById("fact1").textContent = randomItem.fact_1;
+      document.getElementById("fact2").textContent = randomItem.fact_2;
+      document.getElementById("fact3").textContent = randomItem.fact_3;
+    })
+    .catch(error => {
+      console.error("Ошибка загрузки графика:", error);
+      document.getElementById("graph-img").alt = "Ошибка загрузки изображения.";
+    });
+
+  async function useAttempt() {
+    const response = await fetch('/api/use_attempt', { method: 'POST' });
+    const data = await response.json();
+
+    if (data.error) {
+      alert("Лимит попыток исчерпан!");
+      window.location.href = "/";
+    } else {
+      console.log("Осталось попыток:", data.remaining_attempts);
+    }
   }
-}
 
-document.addEventListener("DOMContentLoaded", useAttempt);
-  </script>
+  document.addEventListener("DOMContentLoaded", useAttempt);
+</script>
+
 </body>
 </html>

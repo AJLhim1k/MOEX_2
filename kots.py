@@ -7,7 +7,7 @@ def make_graph(p, mode):
     df['date'] = pd.to_datetime(df['time'].str.replace('T', ' '), format='%Y-%m-%d %H:%M:%S%z')
     df.set_index('date', inplace=True)
     mc = mpf.make_marketcolors(
-        up='lime',
+        up='#2dd242',
         down='red',
         wick='inherit',
         edge='inherit',
@@ -37,7 +37,7 @@ def make_graph(p, mode):
     if mode == 'q':
         fig.savefig(f'.{delimeter}questions{delimeter}plot{p}.png', bbox_inches='tight', )
     elif mode == 'ans':
-        fig.savefig(f'.{delimeter}answers{delimeter}plot{p}.png', bbox_inches='tight', )
+        fig.savefig(f'.{delimeter}questions{delimeter}answers{delimeter}plot{p}.png', bbox_inches='tight', )
 
 if __name__ == '__main__':
-    make_graph(101, 'q')
+    make_graph(100, 'ans')
